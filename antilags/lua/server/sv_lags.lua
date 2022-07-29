@@ -5,7 +5,7 @@ util.AddNetworkString( "SendChatWarning" )
 
 ----------------- CONFIG -----------------
 -- Sensivity of antilag
-local Sensivity = 1 -- Set from 1 to 10
+local Sensivity = 3 -- Set from 1 to 10
 ------------------------------------------
 
 -- Отправляет сообщение в чат
@@ -25,6 +25,20 @@ function FreezeConflicts()
 			e:SetRenderMode(1)
 			e:SetCollisionGroup(1)
 			e:SetColor(ColorAlpha(e:GetColor(),100))
+		end
+	end
+end
+
+-- Фризит конфликтные ентити
+function UnFreezeConflicts()
+	for i,e in ipairs(ents.GetAll()) do
+		local phys = e:GetPhysicsObject()
+
+		if IsValid(phys) and phys:GetStress() > 5000 and !e:IsPlayer() then
+			phys:EnableMotion(true)
+			e:SetRenderMode(1)
+			e:SetCollisionGroup(1)
+			e:SetColor(ColorAlpha(e:GetColor(),255))
 		end
 	end
 end
@@ -82,30 +96,36 @@ function AddTick()
 		TicksCount = 0
 	end
 
+	if NormalizedLagLevel > 150 then
+		game.CleanUpMap(false, {})
+		SendMSG("Резервный уровень лагов, карта очищена.")
+	end
 
 	if NormalizedLagLevel > Sensivity then
 		if FirstLevel == false then
 			FreezeConflicts()
 			-- SendMSG("Заморожены конфликтные ентити")
 			FirstLevel = true
-		elseif SecondLevel == false then
+		elseif SecondLevel == false and NormalizedLagLevel > (Sensivity * 1.5) then
 			FreezeProps()
-			SendMSG("Заморожены все пропы")
+			SendMSG("Заморожены все пропы.")
 			SecondLevel = true
-		elseif ThirdLevel == false then
+		elseif ThirdLevel == false and NormalizedLagLevel > (Sensivity * 2.1)  then
 			StopE2()
-			SendMSG("Остановлены все Expression 2")
+			SendMSG("Остановлены все Expression 2.")
 			ThirdLevel = true
-		elseif FourthLevel == false then
+		elseif FourthLevel == false and NormalizedLagLevel > (Sensivity * 3.0)  then
 			StopSF()
-			SendMSG("Остановлены все Starfall")
+			SendMSG("Остановлены все Starfall.")
 			FourthLevel = true
-		elseif FifthLevel == false then
+		elseif FifthLevel == false and NormalizedLagLevel > (Sensivity * 3.5)  then
 			game.CleanUpMap(false, {})
-			SendMSG("Очищена карта")
+			SendMSG("Очищена карта.")
 			FourthLevel = true
 		end
 	else
+		timer.Start("UnfreezeConflicts", 5, 1, UnFreezeConflicts)
+
 		FirstLevel = false
 		SecondLevel = false
 		ThirdLevel = false
