@@ -1,3 +1,4 @@
+ 
 print( "-----------------------" )
 print("Antilag loading...")
 
@@ -17,7 +18,7 @@ end
 
 -- Фризит конфликтные ентити
 function FreezeConflicts()
-	for i,e in ipairs(ents.GetAll()) do
+	for _,e in ipairs(ents.GetAll()) do
 		local phys = e:GetPhysicsObject()
 
 		if IsValid(phys) and phys:GetStress() > 5000 and !e:IsPlayer() then
@@ -31,7 +32,7 @@ end
 
 -- Фризит конфликтные ентити
 function UnFreezeConflicts()
-	for i,e in ipairs(ents.GetAll()) do
+	for _,e in ipairs(ents.GetAll()) do
 		local phys = e:GetPhysicsObject()
 
 		if IsValid(phys) and phys:GetStress() > 5000 and !e:IsPlayer() then
@@ -45,7 +46,7 @@ end
 
 -- Фризит ентити
 function FreezeProps()
-	for i,e in ipairs(ents.GetAll()) do
+	for _,e in ipairs(ents.GetAll()) do
 		local phys = e:GetPhysicsObject()
 
 		if IsValid(phys) then
@@ -56,7 +57,7 @@ end
 
 -- Останавливает Expression 2
 function StopE2() 
-	for i,e in ipairs( ents.FindByClass("gmod_wire_expression2") ) do
+	for _,e in ipairs( ents.FindByClass("gmod_wire_expression2") ) do
 		if IsValid(e) then
 			e:PCallHook( "destruct" )
 		end
@@ -65,7 +66,7 @@ end
 
 -- Удаляет Starfall
 function StopSF() 
-	for i,e in ipairs( ents.FindByClass("starfall_processor") ) do
+	for _,e in ipairs( ents.FindByClass("starfall_processor") ) do
 		if IsValid(e) then
 			e:Remove()
 		end
@@ -75,7 +76,7 @@ end
 local Tickrate = engine.TickInterval()
 local TicksCount = 0
 local LastCheckTime = SysTime()
-local TickAddTime = SysTime()
+local TickAddTime = 0
 local NormalizedLagLevel = 0
 
 -- Lags levels
@@ -85,7 +86,7 @@ local ThirdLevel = false
 local FourthLevel = false
 local FifthLevel = false
 
---cache
+--Cache
 local round = math.Round
 
 -- Function to detect lags
@@ -109,7 +110,7 @@ function AddTick()
 			FreezeConflicts()
 			-- SendMSG("Заморожены конфликтные ентити")
 			FirstLevel = true
-		elseif SecondLevel == false and NormalizedLagLevel > (Sensivity * 1.5) then
+		elseif not SecondLevel and NormalizedLagLevel > (Sensivity * 1.5) then
 			FreezeProps()
 			SendMSG("Заморожены все пропы.")
 			SecondLevel = true
