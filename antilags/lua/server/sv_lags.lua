@@ -85,13 +85,16 @@ local ThirdLevel = false
 local FourthLevel = false
 local FifthLevel = false
 
+--cache
+local round = math.Round
+
 -- Function to detect lags
 function AddTick()
 	TickAddTime = SysTime()
 	TicksCount = TicksCount + 1
 
 	if TicksCount - Tickrate then
-		NormalizedLagLevel = math.Round(-(LastCheckTime - TickAddTime) / Tickrate, 0)
+		NormalizedLagLevel = round(-(LastCheckTime - TickAddTime) / Tickrate, 0)
 		LastCheckTime = SysTime()
 		TicksCount = 0
 	end
@@ -102,7 +105,7 @@ function AddTick()
 	end
 
 	if NormalizedLagLevel > Sensivity then
-		if FirstLevel == false then
+		if not FirstLevel then
 			FreezeConflicts()
 			-- SendMSG("Заморожены конфликтные ентити")
 			FirstLevel = true
@@ -110,15 +113,15 @@ function AddTick()
 			FreezeProps()
 			SendMSG("Заморожены все пропы.")
 			SecondLevel = true
-		elseif ThirdLevel == false and NormalizedLagLevel > (Sensivity * 2.1)  then
+		elseif not ThirdLevel and NormalizedLagLevel > (Sensivity * 2.1)  then
 			StopE2()
 			SendMSG("Остановлены все Expression 2.")
 			ThirdLevel = true
-		elseif FourthLevel == false and NormalizedLagLevel > (Sensivity * 3.0)  then
+		elseif not FourthLevel and NormalizedLagLevel > (Sensivity * 3.0)  then
 			StopSF()
 			SendMSG("Остановлены все Starfall.")
 			FourthLevel = true
-		elseif FifthLevel == false and NormalizedLagLevel > (Sensivity * 3.5)  then
+		elseif not FifthLevel and NormalizedLagLevel > (Sensivity * 3.5)  then
 			game.CleanUpMap(false, {})
 			SendMSG("Очищена карта.")
 			FourthLevel = true
